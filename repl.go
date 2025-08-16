@@ -5,19 +5,17 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"github.com/marveeen/pokedexcli/internal/pokeapi"
 )
 
-type paginate struct {
-	Next string
-	Previous any
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
 }
 
-func startRepl() {
+func startRepl(cfg *config) {
 	reader := bufio.NewScanner(os.Stdin)
-	config := &paginate{
-		Next: "",
-		Previous: nil,
-	}
 	for {
 		fmt.Printf("Pokedex > ")
 		reader.Scan()
@@ -33,7 +31,7 @@ func startRepl() {
 			continue
 		}
 
-		err := command.callback(config)
+		err := command.callback(cfg)
 		if err != nil {
 			fmt.Println("Error executing command '%s': %v\n", commandName, err)
 			continue
@@ -50,7 +48,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *paginate) error
+	callback    func(*config) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -64,6 +62,16 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Display help information",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Get the next page of locations",
+			callback:    commandMapf,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Get the previous page of locations",
+			callback:    commandMapb,
 		},
 	}
 }
