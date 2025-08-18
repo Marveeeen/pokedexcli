@@ -13,6 +13,15 @@ func (c *Client) ListLocations(pageUrl *string) (RespShallowLocations, error) {
 		url = *pageUrl
 	}
 
+	if cachedData, ok := c.cache.Get(url); ok {
+		var cachedResp RespShallowLocations
+		if err := json.Unmarshal(cachedData, &cachedResp); err != nil {
+			return RespShallowLocations{}, fmt.Errorf("failed to unmarshal cached data: %v", err)
+		}
+
+		return cachedResp, nil
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return RespShallowLocations{}, err
@@ -27,6 +36,8 @@ func (c *Client) ListLocations(pageUrl *string) (RespShallowLocations, error) {
 	if err != nil {
 		return RespShallowLocations{}, fmt.Errorf("failed to read response body: %v", err)
 	}
+
+	c.cache.Add(url, data)
 
 	locationsResp := RespShallowLocations{}
 	if err := json.Unmarshal(data, &locationsResp); err != nil {

@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
-	"github.com/marveeen/pokedexcli/internal/pokeapi"
+	"github.com/marveeeen/pokedexcli/internal/pokeapi"
 )
 
 type config struct {
@@ -33,7 +33,7 @@ func startRepl(cfg *config) {
 
 		err := command.callback(cfg)
 		if err != nil {
-			fmt.Println("Error executing command '%s': %v\n", commandName, err)
+			fmt.Printf("Error executing command '%s': %v\n", commandName, err)
 			continue
 		}
 	}
