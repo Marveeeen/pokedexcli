@@ -18,15 +18,17 @@ func (c *Client) GetLocation(locationName string) (Location, error) {
 		return cachedResp, nil
 	}
 
-	res, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return Location{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return Location{}, err
 	}
 
 	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return Location{}, err
-	}
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {

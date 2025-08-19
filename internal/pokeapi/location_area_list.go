@@ -2,7 +2,6 @@ package pokeapi
 
 import (
 	"net/http"
-	"fmt"
 	"io"
 	"encoding/json"
 )
@@ -16,30 +15,32 @@ func (c *Client) ListLocations(pageUrl *string) (RespShallowLocations, error) {
 	if cachedData, ok := c.cache.Get(url); ok {
 		var cachedResp RespShallowLocations
 		if err := json.Unmarshal(cachedData, &cachedResp); err != nil {
-			return RespShallowLocations{}, fmt.Errorf("failed to unmarshal cached data: %v", err)
+			return RespShallowLocations{}, err
 		}
 
 		return cachedResp, nil
 	}
 
-	res, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return RespShallowLocations{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return RespShallowLocations{}, err
 	}
 
 	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return RespShallowLocations{}, fmt.Errorf("failed to fetch locations, status code: %d", res.StatusCode)
-	}
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return RespShallowLocations{}, fmt.Errorf("failed to read response body: %v", err)
+		return RespShallowLocations{}, err
 	}
 
 	locationsResp := RespShallowLocations{}
 	if err := json.Unmarshal(data, &locationsResp); err != nil {
-		return RespShallowLocations{}, fmt.Errorf("failed to parse JSON: %v", err)
+		return RespShallowLocations{}, err
 	}
 
 	c.cache.Add(url, data)
