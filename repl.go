@@ -41,7 +41,7 @@ func startRepl(cfg *config) {
 		err := command.callback(cfg, args...)
 		 
 		if err != nil {
-			fmt.Printf("Error executing command '%s': %v\n", commandName, err)
+			fmt.Println(err)
 			continue
 		}
 	}
@@ -90,6 +90,11 @@ func getCommands() map[string]cliCommand {
 			name:        "catch",
 			description: "Catch a Pokémon by name",
 			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect a caught Pokémon by name",
+			callback:    commandInspect,
 		},
 	}
 }

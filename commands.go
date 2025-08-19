@@ -88,6 +88,7 @@ func commandCatch(cfg *config, args ...string) error {
 	if err != nil {
 		return err
 	}
+
 	res := rand.Intn(pokemon.BaseExperience)
 	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 	if res < 40 {
@@ -96,6 +97,33 @@ func commandCatch(cfg *config, args ...string) error {
 	}
 	fmt.Printf("%s was caught!\n", pokemon.Name)
 	cfg.caughtPokemon[pokemon.Name] = pokemon
+	return nil
+}
+
+func commandInspect(cfg *config, args ...string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("please provide a Pokémon name to inspect")
+	}
+
+	pokemonName := args[0]
+	_, exists := cfg.caughtPokemon[pokemonName]
+	if !exists {
+		return fmt.Errorf("you haven't caught a Pokémon named %s", pokemonName)
+	}
+
+	fmt.Println("Name:", pokemonName)
+	fmt.Println("Height:", cfg.caughtPokemon[pokemonName].Height)
+	fmt.Println("Weight:", cfg.caughtPokemon[pokemonName].Weight)
+	fmt.Println("Stats:")
+	for _, stat := range cfg.caughtPokemon[pokemonName].Stats {
+		fmt.Printf(" -%s: %d\n", stat.Stat.Name, stat.BaseStat)
+	}
+
+	fmt.Println("Types:")
+	for _, t := range cfg.caughtPokemon[pokemonName].Types {
+		fmt.Printf(" - %s\n", t.Type.Name)
+	}
+
 	return nil
 }
 
