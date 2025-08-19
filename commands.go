@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"math/rand"
 )
 
 func commandExit(cfg *config, args ...string) error {
@@ -75,3 +76,26 @@ func commandExplore(cfg *config, args ...string) error {
 
 	return nil
 }
+
+func commandCatch(cfg *config, args ...string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("please provide a Pokémon name to catch")
+	}
+
+	pokemonName := args[0]
+
+	pokemon, err := cfg.pokeapiClient.GetPokemon(pokemonName)
+	if err != nil {
+		return err
+	}
+	res := rand.Intn(pokemon.BaseExperience)
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
+	if res < 40 {
+		fmt.Printf("%s escaped!\n", pokemon.Name)
+		return nil	
+	}
+	fmt.Printf("%s was caught!\n", pokemon.Name)
+	cfg.caughtPokemon[pokemon.Name] = pokemon
+	return nil
+}
+
