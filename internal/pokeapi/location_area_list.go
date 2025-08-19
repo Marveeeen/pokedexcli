@@ -37,12 +37,11 @@ func (c *Client) ListLocations(pageUrl *string) (RespShallowLocations, error) {
 		return RespShallowLocations{}, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	c.cache.Add(url, data)
-
 	locationsResp := RespShallowLocations{}
 	if err := json.Unmarshal(data, &locationsResp); err != nil {
 		return RespShallowLocations{}, fmt.Errorf("failed to parse JSON: %v", err)
 	}
 
+	c.cache.Add(url, data)
 	return locationsResp, nil
 }

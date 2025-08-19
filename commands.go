@@ -5,13 +5,13 @@ import (
 	"os"
 )
 
-func commandExit(cfg *config) error {
+func commandExit(cfg *config, args ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *config) error {
+func commandHelp(cfg *config, args ...string) error {
 	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
@@ -23,7 +23,7 @@ func commandHelp(cfg *config) error {
 	return nil
 }
 
-func commandMapf(cfg *config) error {
+func commandMapf(cfg *config, args ...string) error {
 	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
 		return fmt.Errorf("failed to fetch locations: %v", err)
@@ -39,7 +39,7 @@ func commandMapf(cfg *config) error {
 	return nil
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config, args ...string) error {
 	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
 	if err != nil {
 		return fmt.Errorf("failed to fetch locations: %v", err)
@@ -55,3 +55,23 @@ func commandMapb(cfg *config) error {
 	return nil
 }
 
+func commandExplore(cfg *config, args ...string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("please provide a location name to explore")
+	}
+
+	locationName := args[0]
+
+	locationResp, err := cfg.pokeapiClient.GetLocation(locationName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Exploring %s...\n", locationName)
+	fmt.Println("Found Pokemon: ")
+	for _, pokemon := range locationResp.PokemonEncounters {
+		fmt.Println(" -", pokemon.Pokemon.Name)
+	}
+
+	return nil
+}
